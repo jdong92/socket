@@ -29,9 +29,10 @@
 #define SERV_PORT 9000
 #define SERV_PORT_STR "9000"
 
-volatile int stop=0;
+volatile int stop = 0;
 
 void sigalrm_handler( int sig ){
+
     stop = 1;
 }
 
