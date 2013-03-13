@@ -26,12 +26,48 @@
 #define MAXSOCKADDR 128
 #define BUFFSIZE 4096
 
-#define SERV_PORT 9000
-#define SERV_PORT_STR "9000"
+#define SERV_PORT 9050
+#define SERV_PORT_STR "9050"
+#define SECONDS 15
 
 volatile int stop = 0;
+int *array;
 
-void sigalrm_handler( int sig ){
+int performance(){
+   
+    int i, j, test = 0;
+    printf("Querying manage for perfect number ranges. \n");
+	alarm(SECONDS); 
+    while (!stop) {
+		for (i = 1;!stop;i++){
+            for (j = 1; j < i; j++){
+                if (i % j == 0)
+                    test = 1;
+            }
+        }
+    }
+    return i;
+}
+
+void perfect_number(int operations, int *array){
+
+    int i, j, perfect_count;
+    for (i = 1; i < operations; i++){
+        for (j = 1; j < i; j++){
+            if (i % j == 0)
+                perfect_count = perfect_count + j;
+        }
+        if (perfect_count == i){
+            //array[i] = i;
+            printf("%d \n", i);
+        }
+        perfect_count = 0;
+
+    }
+
+}
+
+void sigalrm_handler(int sig){
 
     stop = 1;
 }
@@ -39,14 +75,15 @@ void sigalrm_handler( int sig ){
 int main(int argc, char **argv)
 {
     struct sigaction sact;
-	int i, j, n, max, perfect_count = 0;
-	int sockfd;
+    int i;
+	int sockfd, operations, max_op;
 	struct sockaddr_in servaddr;
 	char sendline[MAXLINE];
 	char recvline[MAXLINE];
-   
+       
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
+    /*Signal Handler */
 	sigemptyset(&sact.sa_mask);
     sact.sa_flags = 0;
     sact.sa_handler = sigalrm_handler;
@@ -59,51 +96,22 @@ int main(int argc, char **argv)
 
 	connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
-    while(fgets(sendline, MAXLINE, stdin) != NULL){
+    printf("Compute starting. Testing system performance. \n");
+    operations = performance();
+    printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
 
-        bzero(recvline, MAXLINE);
-        write(sockfd, sendline, strlen(sendline) + 1);
-        if(read(sockfd, recvline, MAXLINE) == 0){
-            perror("Something broke");
-            exit(-1);
-        }
-        fputs(recvline, stdout);
-    }
-    /*
-
-    printf("Querying manage for perfect number ranges. \n");
-	alarm(15); 
-    while (!stop) {
-		for (i = 1;!stop;i++){
-		    for (j = 1; j < i && !stop; j++){
-		        if (i % j == 0)
-		            perfect_count = perfect_count + j;
-
-		    	}
-		        if (perfect_count == i){
-		    	
-                }
-	            perfect_count = 0;
-		}
-    }
-    sprintf(sendline, "%d \n", i);
+    sprintf(sendline, "%d \n", operations);
     write(sockfd, sendline, strlen(sendline) + 1);
-    for (;;){
+ 
+        read(sockfd, recvline, MAXLINE);
+        max_op = atoi(recvline);
+        printf("Maximum operations: %d \n", max_op);
+        array = malloc(max_op * sizeof(int));
+        perfect_number(max_op, array);
+        printf("Done \n");
 
-          if ((n = read(sockfd, recvline, MAXLINE)) == 0){
-              close(sockfd);
-              break;
-          }else{
-              max = atoi(recvline);
-              fputs(recvline, stdout);
-              break;
-          }
-
-
-    }
-
-    printf("Perfect Number: %d \n", max);
-    */
+        close(sockfd);         
+     
 	return 0;
 }
 
