@@ -33,6 +33,8 @@ while running:
             running = 0
         else:
             data = s.recv(maxline)
+            if (data == '#REPORT'):
+                print 'Report'
             if data:
                 print data
                 s.send(data)

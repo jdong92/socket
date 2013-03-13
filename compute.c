@@ -31,7 +31,7 @@
 #define SECONDS 15
 
 volatile int stop = 0;
-int *array;
+int *perfect_num[1000];
 
 int performance(){
    
@@ -58,7 +58,7 @@ void perfect_number(int operations, int *array){
                 perfect_count = perfect_count + j;
         }
         if (perfect_count == i){
-            //array[i] = i;
+            perfect_num[i] = i;
             printf("%d \n", i);
         }
         perfect_count = 0;
@@ -103,14 +103,15 @@ int main(int argc, char **argv)
     sprintf(sendline, "%d \n", operations);
     write(sockfd, sendline, strlen(sendline) + 1);
  
-        read(sockfd, recvline, MAXLINE);
-        max_op = atoi(recvline);
-        printf("Maximum operations: %d \n", max_op);
-        array = malloc(max_op * sizeof(int));
-        perfect_number(max_op, array);
-        printf("Done \n");
+    read(sockfd, recvline, MAXLINE);
+    max_op = atoi(recvline);
+    printf("Maximum operations: %d \n", max_op);
+    perfect_number(max_op, array);
 
-        close(sockfd);         
+    /*Send array of the result report.py */
+    printf("Done \n");
+
+    close(sockfd);         
      
 	return 0;
 }
