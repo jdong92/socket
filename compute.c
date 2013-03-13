@@ -1,25 +1,25 @@
 #define _POSIX_SOURCE
 #define _BSD_SOURCE
 
-#include	<sys/types.h>	/* basic system data types */
-#include	<sys/socket.h>	/* basic socket definitions */
-#include	<sys/time.h>	/* timeval{} for select() */
-#include	<time.h>		/* timespec{} for pselect() */
-#include	<netinet/in.h>	/* sockaddr_in{} and other Internet defns */
-#include	<arpa/inet.h>	/* inet(3) functions */
-#include	<errno.h>
-#include	<fcntl.h>		/* for nonblocking */
-#include	<netdb.h>
-#include	<signal.h>
-#include	<stdio.h>
-#include	<stdlib.h>
-#include	<string.h>
-#include   	<strings.h>     /* for bzero */
-#include	<sys/stat.h>	/* for S_xxx file mode constants */
-#include	<sys/uio.h>		/* for iovec{} and readv/writev */
-#include	<unistd.h>
-#include	<sys/wait.h>
-#include	<sys/select.h>
+#include <sys/types.h>	/* basic system data types */
+#include <sys/socket.h>	/* basic socket definitions */
+#include <sys/time.h>	/* timeval{} for select() */
+#include <time.h>		/* timespec{} for pselect() */
+#include <netinet/in.h>	/* sockaddr_in{} and other Internet defns */
+#include <arpa/inet.h>	/* inet(3) functions */
+#include <errno.h>
+#include <fcntl.h>		/* for nonblocking */
+#include <netdb.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>     /* for bzero */
+#include <sys/stat.h>	/* for S_xxx file mode constants */
+#include <sys/uio.h>		/* for iovec{} and readv/writev */
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/select.h>
 
 #define LISTENQ 1024
 #define MAXLINE 4096
@@ -74,8 +74,8 @@ void sigalrm_handler(int sig){
 
 int main(int argc, char **argv)
 {
-    struct sigaction sact;
-    int i;
+	struct sigaction sact;
+    	int i;
 	int sockfd, operations, max_op;
 	struct sockaddr_in servaddr;
 	char sendline[MAXLINE];
@@ -85,9 +85,9 @@ int main(int argc, char **argv)
 
     /*Signal Handler */
 	sigemptyset(&sact.sa_mask);
-    sact.sa_flags = 0;
-    sact.sa_handler = sigalrm_handler;
-    sigaction(SIGALRM, &sact, NULL);
+    	sact.sa_flags = 0;
+    	sact.sa_handler = sigalrm_handler;
+    	sigaction(SIGALRM, &sact, NULL);
 	
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
@@ -96,22 +96,22 @@ int main(int argc, char **argv)
 
 	connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
-    printf("Compute starting. Testing system performance. \n");
-    operations = performance();
-    printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
+   	printf("Compute starting. Testing system performance. \n");
+    	operations = performance();
+    	printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
 
-    sprintf(sendline, "%d \n", operations);
-    write(sockfd, sendline, strlen(sendline) + 1);
+    	sprintf(sendline, "%d \n", operations);
+    	write(sockfd, sendline, strlen(sendline) + 1);
  
-    read(sockfd, recvline, MAXLINE);
-    max_op = atoi(recvline);
-    printf("Maximum operations: %d \n", max_op);
-    perfect_number(max_op, array);
+    	read(sockfd, recvline, MAXLINE);
+    	max_op = atoi(recvline);
+    	printf("Maximum operations: %d \n", max_op);
+    	perfect_number(max_op, array);
 
     /*Send array of the result report.py */
-    printf("Done \n");
+    	printf("Done \n");
 
-    close(sockfd);         
+    	close(sockfd);         
      
 	return 0;
 }
