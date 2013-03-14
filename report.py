@@ -13,15 +13,9 @@ except socket.error:
 report.connect((HOST, PORT))
 print 'report.py running'
 
-#listenfd.bind((HOST, PORT))
-#listenfd.listen(1)
+report.send('REPORT')
+data = report.recv(4096)
+perfect_num = data.split('#')
+for i in perfect_num:
+    print i
 
-#conn, addr = listenfd.accept()
-
-#print 'Connected by', addr
-
-report.send('#REPORT')
-    #data = report.recv(1024)
-    #print data
-
-report.close()

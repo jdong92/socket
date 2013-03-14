@@ -32,6 +32,8 @@
 
 volatile int stop = 0;
 int *perfect_num[1000];
+char sendline[MAXLINE];
+char recvline[MAXLINE];
 
 int performance(){
    
@@ -49,7 +51,7 @@ int performance(){
     return i;
 }
 
-void perfect_number(int operations, int *array){
+void perfect_number(int sockfd, int operations){
 
     int i, j, perfect_count;
     for (i = 1; i < operations; i++){
@@ -57,9 +59,9 @@ void perfect_number(int operations, int *array){
             if (i % j == 0)
                 perfect_count = perfect_count + j;
         }
-        if (perfect_count == i){
-            perfect_num[i] = i;
-            printf("%d \n", i);
+        if (perfect_count == i){ 
+            sprintf(sendline, "C#%d", perfect_count);
+            write(sockfd, sendline, strlen(sendline) + 1);
         }
         perfect_count = 0;
 
@@ -78,8 +80,6 @@ int main(int argc, char **argv)
     int i;
 	int sockfd, operations, max_op;
 	struct sockaddr_in servaddr;
-	char sendline[MAXLINE];
-	char recvline[MAXLINE];
        
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -100,15 +100,15 @@ int main(int argc, char **argv)
     operations = performance();
     printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
 
-    sprintf(sendline, "%d \n", operations);
+    sprintf(sendline, "%d", operations);
+    /* Send Maximum Operation */
     write(sockfd, sendline, strlen(sendline) + 1);
  
     read(sockfd, recvline, MAXLINE);
     max_op = atoi(recvline);
     printf("Maximum operations: %d \n", max_op);
-    perfect_number(max_op, array);
+    perfect_number(sockfd, max_op);
 
-    /*Send array of the result report.py */
     printf("Done \n");
 
     close(sockfd);         
