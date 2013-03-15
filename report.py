@@ -11,11 +11,18 @@ except socket.error:
     sys.exit()
 
 report.connect((HOST, PORT))
-print 'report.py running'
 
-report.send('REPORT')
-data = report.recv(4096)
-perfect_num = data.split('#')
-for i in perfect_num:
-    print i
+if len(sys.argv) > 2:
+    print 'Usage: report.py [ip-address] [-k]'
+    sys.exit()
+if (len(sys.argv) == 2) and (sys.argv[1] == '-k'):
+    print '-k option invoked'
+    report.send('KILL')
+else:
+    print 'report.py running'
+    report.send('REPORT')
+    data = report.recv(4096)
+    perfect_num = data.split('#')
+    for i in perfect_num:
+        print i
 

@@ -36,12 +36,14 @@ while running:
         else:
             data = s.recv(maxline)
             match = re.search(('[0-9]+'),data)
-            if (data[0:2] == 'C#'):
+            if data[0:2] == 'C#':
                 msg = data[2:len(data)] + '#'
                 list_of_num.append(msg)
-            if (data == 'REPORT'):
+            if data == 'REPORT':
                 for i in list_of_num:
                     s.send(i)
+            if data == 'KILL':
+                print 'KILL'
             if match:
                 s.send(match.group(0))
             else:
