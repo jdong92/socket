@@ -43,8 +43,9 @@ while running:
                 for i in list_of_num:
                     s.send(i)
             if data == 'KILL':
-                print 'KILL'
+                print 'manage.py terminated by report.py'
                 s.send(data)
+                quit()
             if match:
                 s.send(match.group(0))
             else:
