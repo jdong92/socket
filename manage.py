@@ -44,6 +44,7 @@ while running:
                     s.send(i)
             if data == 'KILL':
                 print 'KILL'
+                s.send(data)
             if match:
                 s.send(match.group(0))
             else:

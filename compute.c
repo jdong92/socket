@@ -10,6 +10,7 @@
 #include	<errno.h>
 #include	<fcntl.h>		/* for nonblocking */
 #include	<netdb.h>
+#include    <pcre.h>
 #include	<signal.h>
 #include	<stdio.h>
 #include	<stdlib.h>
@@ -31,21 +32,26 @@
 #define SECONDS 15
 
 volatile int stop = 0;
-int *perfect_num[1000];
 char sendline[MAXLINE];
 char recvline[MAXLINE];
+char kill_signal[MAXLINE];
+int pid;
+
+void termination_handler(int signum){
+
+    kill(pid, SIGTERM);
+
+
+}
 
 int performance(){
    
-    int i, j, test = 0;
+    int i, j = 10, k;
     printf("Querying manage for perfect number ranges. \n");
 	alarm(SECONDS); 
     while (!stop) {
 		for (i = 1;!stop;i++){
-            for (j = 1; j < i; j++){
-                if (i % j == 0)
-                    test = 1;
-            }
+            k = j % i; 
         }
     }
     return i;
@@ -76,7 +82,7 @@ void sigalrm_handler(int sig){
 
 int main(int argc, char **argv)
 {
-    struct sigaction sact;
+    struct sigaction sact, sterm;
     int i;
 	int sockfd, operations, max_op;
 	struct sockaddr_in servaddr;
@@ -85,40 +91,75 @@ int main(int argc, char **argv)
 
     /*Signal Handler */
 	sigemptyset(&sact.sa_mask);
+    sigemptyset(&sterm.sa_mask);
+    
+    sterm.sa_flags = 0;
     sact.sa_flags = 0;
+
     sact.sa_handler = sigalrm_handler;
+    sterm.sa_handler = termination_handler;
+
     sigaction(SIGALRM, &sact, NULL);
+    sigaction(SIGQUIT, &sterm, NULL);
+    sigaction(SIGINT, &sterm, NULL);
+    sigaction(SIGHUP, &sterm, NULL);
 	
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(SERV_PORT);
+	servaddr.sin_port = htons(SERV_PORT);	
 
     if (argc == 1 || argc > 2){
 
         printf("Usage: ./compute [ip address] \n");
 
     }else{
-    
-	    inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
-	    connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+
+        inet_pton(AF_INET, argv[1], &servaddr.sin_addr);	
+        connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        //Move the main stuff here
+        //
+        switch(pid = fork()){
+
+            case -1:
+
+            case 0:
+                    printf("Child Process \n");
+                    for(;;){
+
+                        read(sockfd, kill_signal, MAXLINE);
+                        if (strcmp("KILL", kill_signal) == 0)
+                                printf("Kill program \n");
+                        
+                    }
+                    
+                   
+            default:
+                    printf("Parent Proess \n");
+                      
+		                    
+       }    
 
         printf("Compute starting. Testing system performance. \n");
-        operations = performance();
-        printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
+		operations = performance();
+		printf("Performance is %d operations in %d seconds. \n", operations, SECONDS);
 
-        sprintf(sendline, "%d", operations);
-        /* Send Maximum Operation */
-        write(sockfd, sendline, strlen(sendline) + 1);
- 
-        read(sockfd, recvline, MAXLINE);
-        max_op = atoi(recvline);
-        printf("Maximum operations: %d \n", max_op);
-        printf("Computing Perfect Number... \n");
-        perfect_number(sockfd, max_op);
+		sprintf(sendline, "%d", operations);
+		// Send Maximum Operation 
+		write(sockfd, sendline, strlen(sendline) + 1);
+	 
+		read(sockfd, recvline, MAXLINE);
+		max_op = atoi(recvline);
+		printf("Maximum operations: %d \n", max_op);
+		printf("Computing Perfect Number... \n");
+	    perfect_number(sockfd, max_op);
 
-        printf("Done \n");
+		printf("Done \n");
+ 	    close(sockfd);
 
-        close(sockfd);
+        	    
+	
+
+       
     }
      
 	return 0;
