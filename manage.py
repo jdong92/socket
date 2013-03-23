@@ -45,7 +45,6 @@ while running:
             if data == 'KILL':
                 print 'manage.py terminated by report.py'
                 s.send(data)
-                quit()
             if match:
                 s.send(match.group(0))
             else:
